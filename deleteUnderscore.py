@@ -11,6 +11,16 @@ version = "0.1"
 
 global args
 
+#  Wait for user OK.
+def reportError(msg, abort):
+    if abort:
+        fate = "abort"
+    else:
+        fate = "continue"
+    sys.stderr.write("{0}.  Hit <enter> to {1}.".format(msg, fate))
+    if abort:
+        exit(1)
+
 #  Process all files in one directory."
 def doOneDirectory(dirpath, filenames):
     dirpath = dirpath
@@ -32,7 +42,6 @@ def doOneFile(dirpath, filename):
     #  Delete underscores.  Allow silent deletions if a file with the name already exists."
     if args.delete_underscores:
         os.rename(os.path.join(dirpath, filename), os.path.join(dirpath, filename.replace("_", "")))
-
 
 def main():    
     global args
