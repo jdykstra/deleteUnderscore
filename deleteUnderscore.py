@@ -11,19 +11,25 @@ version = "0.1"
 
 global args
 
-#  Wait for user OK.
-def reportError(msg, abort):
-    if abort:
-        fate = "abort"
-    else:
-        fate = "continue"
-    sys.stderr.write("{0}.  Hit <enter> to {1}.".format(msg, fate))
-    if abort:
-        exit(1)
+class Error:
+    def __init__(self, msg, abort = True):
+        self.msg = msg
+        self.abort = abort
+
+    def __repr__(self):
+        return self.msg
+    
+    def report(self):
+        if self.abort:
+            fate = "abort"
+        else:
+            fate = "continue"
+        raw_input("{0}.  Hit <enter> to {1}.".format(self.msg, fate))
+        if self.abort:
+            exit(1)
 
 #  Process all files in one directory."
 def doOneDirectory(dirpath, filenames):
-    dirpath = dirpath
     for leaf in filenames:
         doOneFile(dirpath, leaf)
 
@@ -33,15 +39,27 @@ def doOneFile(dirpath, filename):
     name, ext = os.path.splitext(filename)
     if not ext.lower() in {".nef", ".jpg", ".jpeg", ".tif", ".tiff", ".xmp"}:
         return
-    if name[0] not in {"_", "C"}:
+    
+    # Sanity-check filenames to reduce the chance of us touching something
+    # we shouldn't.
+    if name[0] in {"_"} and name[1] not in {"C"}:
+        return
+    if name[0] in {"C"} and name[3] not in {"_"}:
         return
     
-    if args.progress:
-        print filename
-        
     #  Delete underscores.  Allow silent deletions if a file with the name already exists."
     if args.delete_underscores:
-        os.rename(os.path.join(dirpath, filename), os.path.join(dirpath, filename.replace("_", "")))
+        newname = filename.replace("_", "")
+        newfullpath = os.path.join(dirpath, newname)
+        
+        # Explicitly check for the new name already existing.  Windows will throw an
+        # exception if it does, but UNIX will silently delete the old file.
+        if os.access(newfullpath, os.F_OK):
+            raise Error(newfullpath + " already exists")
+        os.rename(os.path.join(dirpath, filename), newfullpath)
+        if args.progress:
+            sys.stdout.write("{0} -> {1}\n".format(filename, newname))
+        
 
 def main():    
     global args
@@ -55,12 +73,15 @@ def main():
     parser.add_argument("dir", nargs='?', default=os.getcwd(), help="Directory containing files;  Use the working directory if not specified.")
     args = parser.parse_args()
     
-    if args.recursive:
-        dirs = os.walk(args.dir)
-        for dir in dirs:
-            doOneDirectory(dir[0], dir[2])
-    else:
+    try:
+        if args.recursive:
+            dirs = os.walk(args.dir)
+            for dir in dirs:
+                doOneDirectory(dir[0], dir[2])
+        else:
             doOneDirectory(args.dir, os.listdir(args.dir))
+    except Error as e:
+        e.report()
     
     #  Now run the external program, if specified.  Because this passes the start command"
     #  to the OS shell, it is Windows-specific."
@@ -69,3 +90,4 @@ def main():
             
 if __name__ == '__main__':
     main()
+    exit(0)
