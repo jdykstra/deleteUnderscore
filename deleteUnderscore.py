@@ -2,12 +2,12 @@ import errno, os, stat, sys, subprocess
 import argparse
 
 """ 
-Delete underscores in camera image filenames within current working directory.
+Delete underscores in camera image filenames.
 
 Usage:
 python deleteUnderscore.py  --remove-underscores [directory]
 """
-version = "0.1"
+version = "0.2"
 
 global args
 
@@ -35,7 +35,7 @@ def doOneDirectory(dirpath, filenames):
 
 # Do the requested processing on one file"
 def doOneFile(dirpath, filename):
-    #  Only touch image files beginning in an underscore or a C."
+    #  Only touch image files and their sidecars.
     name, ext = os.path.splitext(filename)
     if not ext.lower() in {".nef", ".jpg", ".jpeg", ".tif", ".tiff", ".xmp"}:
         return
@@ -47,7 +47,7 @@ def doOneFile(dirpath, filename):
     if name[0] in {"C"} and name[3] not in {"_"}:
         return
     
-    #  Delete underscores.  Allow silent deletions if a file with the name already exists."
+    #  Delete underscores."
     if args.delete_underscores:
         newname = filename.replace("_", "")
         newfullpath = os.path.join(dirpath, newname)
