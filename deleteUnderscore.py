@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import errno, os, stat, sys, subprocess
 import argparse
 
