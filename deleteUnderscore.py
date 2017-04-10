@@ -78,7 +78,7 @@ def main(argv = None):
     parser.add_argument('--progress', action='store_true', help="Print what is done to each file.")
     parser.add_argument('--version', action='version', version='%(prog)s ' + version)
     parser.add_argument("dir", nargs='?', default=os.getcwd(), help="Directory containing files;  Use the working directory if not specified.")
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv[1:])
     
     try:
         if args.recursive:
