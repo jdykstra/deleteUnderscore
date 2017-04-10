@@ -63,9 +63,14 @@ def doOneFile(dirpath, filename):
             sys.stdout.write("{0} -> {1}\n".format(filename, newname))
         
 
-def main():    
+def main(argv = None):    
     global args
     
+    if argv is None:
+        argv = sys.argv
+    else:
+        sys.argv.extend(argv)
+
     parser = argparse.ArgumentParser(description="Manage camera image files")
     parser.add_argument("--recursive", action="store_true", help="Recurse into subdirectories.")
     parser.add_argument("--delete-underscores", action="store_true", help="Remove underscores in filenames.")
@@ -73,7 +78,7 @@ def main():
     parser.add_argument('--progress', action='store_true', help="Print what is done to each file.")
     parser.add_argument('--version', action='version', version='%(prog)s ' + version)
     parser.add_argument("dir", nargs='?', default=os.getcwd(), help="Directory containing files;  Use the working directory if not specified.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     
     try:
         if args.recursive:
