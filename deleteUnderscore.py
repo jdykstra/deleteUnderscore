@@ -7,7 +7,7 @@ import argparse
 Delete underscores in camera image filenames.
 
 Usage:
-python deleteUnderscore.py  --remove-underscores [directory]
+C:\Python27\python.exe "C:\Program Files\JWD\deleteUnderscore.py"  --delete-underscore --recursive --progress --run "C:\Program Files\Adobe\Adobe Lightroom Classic CC\lightroom.exe
 """
 version = "0.2"
 
